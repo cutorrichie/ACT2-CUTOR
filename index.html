@@ -21,11 +21,18 @@
         </form>
     </div>
 
-    <div class="container cat-search">
-        <!-- Do some awesome stuff here -->
-    </div>
+    
 
-    <img src="./public/img/cat.gif" alt="" id="gif">
+    <div class="container cat-search" id="result">
+        <!-- Do some awesome stuff here -->
+       
+    </div>
+    
+    
+
+    <img src="./public/img/cat.gif" alt="" id="search-gif">
+    
+
     <script src="./public/js/jquery.min.js"></script>
     <script>
         // We intialize jQuery here
@@ -33,28 +40,40 @@
             // Try to cache your selectors as posible
             // Here's a sample :
             var searchForm = $('#search-form');
-            var searchKey = $('#cat-keyword');
-            var loadGifLocation = "./public/img/cat.gif";
-            var noResultGifLocatiion = "./public/img/cat2.gif";
-            var imgGif = $('#gif')
+
+            // Coded ********************************************
+            var inputVal = $("#cat-keyword");
+            var searchGif = $('#search-gif');
+            var resultContainer = $('#result');
+            var resources = $('#res');
+            var LoadLocation = "./public/img/cat2.gif";
+            var NoResultLocation = "./public/img/cat.gif"; 
             //These are the variables we need to request from the API
             var API_URL = 'https://api.thecatapi.com/v1/breeds/search?q=';
             var API_KEY = 'bd38af4d-fba6-4d1f-bbfd-a98cc4e036d1';
 
+            
             //Trigger submit form
             searchForm.on('submit', function(e){
-                
+
+                               
                 //Prevents the form to reload the page
                 e.preventDefault();
-                
 
+
+                searchGif.attr("src", LoadLocation);
+                
+                $('.searched').remove();
+                //Display input value
+                //console.log(inputVal.val());
+                
                 // Make an API request IN THIS LINE
-                 
-                   // Use this simple AJAX snippet to make a request
+                /* 
+                    //Use this simple AJAX snippet to make a request
                     
                     $.ajax({
                         method: 'GET',
-                        url: API_URL + searchKey,
+                        url: API_URL + Your query here (the value from the search form),
                         headers:{
                             'x-api-key' : API_KEY
                         }
@@ -72,32 +91,67 @@
                     1.) Submit the form
                     2.) Make the loader visible
                     3.) Make an API call
-                        This is what the API call should look like
+                        This is what the API call should look like*/
                             $.ajax({
-
-                            })*/
+                                // Coded ********************************************
+                                method: 'GET',
+                                url: API_URL + inputVal.val(), 
+                                headers:{
+                            'x-api-key' : API_KEY
+                            }
+                            })
                             .then(function(parameter){
-                               /* Check here if there is a returned data (the data returned is an array so, you can just use the length to check)
-
+                                /*Check here if there is a returned data (the data returned is an array so, you can just use the length to check)
+                                
                                 Map the data (if any)
                                     Hide the loader
 
                                 Display No results found from "the keyword you searched" (if there's no data)
                                     Display cat.gif*/
+                                $( "h3" ).remove('h3');
+                                
+                                
+                                //console.log(parameter.length);
                                 if(parameter.length >= 1){
+                                    resultContainer.append(`<h3>Search results for "${inputVal.val()}"</h3>`);
+                                    $('.searched').remove();    
+                                    searchGif.attr("src" , null);
+                                    parameter.forEach(function(res){
+                                        var searchInput = res.name;
+                                        var description = res.description;
+                                        var origin = res.origin;
+                                        resultContainer.append(`
+                                        <form id="res" class="searched">
+                                            <h4>${searchInput}</h4>
+                                            <hr>
+                                            <p>${origin}</p>
+                                            <p>${description}</p>
+                                            <a href="https://en.wikipedia.org/wiki/${searchInput}">Search on Wikipedia</a>
+                                        </form>
+                                    `);
                                     
+                                })
                                 }
                                 else{
-                                    imgGif.attr("src", noResultGifLocatiion);
+                                    $('.searched').remove();
+                                    resultContainer.append(`<h3>No search results for "${inputVal.val()}"</h3>`);
+                                    searchGif.css("margin-top","-5px")
+                                    searchGif.attr("src" , NoResultLocation);
                                 }
+
+                                
+                                
                             })
                             .catch(function(){
-                               // Handle error here IF NEEDED
+                                //Handle error here IF NEEDED
                             })
                             .then(function(){
-                             /*   Handle some default behaviours here after the search like the ff:
+                                /*Handle some default behaviours here after the search like the ff:
                                 * reset the value of the form to blank
                                 * other things that you want to add*/
+
+                                // Coded ********************************************
+                                inputVal.val('');
                             })
                 
                
